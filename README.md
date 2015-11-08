@@ -8,6 +8,5 @@ clone the repository
     
 
 ## Authors
-
-    [Angel](https://gitlab.com/u/luisangeljg1993)  
-    [Jonathan](https://gitlab.com/u/jonathanjgs)  
+[Angel](https://gitlab.com/u/luisangeljg1993)  
+[Jonathan](https://gitlab.com/u/jonathanjgs)
