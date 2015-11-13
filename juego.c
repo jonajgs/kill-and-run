@@ -8,6 +8,35 @@
 SDL_Surface *imagenes[ TOTAL_IMAGENES ];
 SDL_RWops *rwimagenes[ TOTAL_IMAGENES ];
 int escenario_actual;
+Jugador jugador1, jugador2;
+struct timeval start;
+
+void initPlayer( Jugador *jugador, short id ){
+    jugador->id = id;
+    jugador->aceleracion = ACELERACION;
+    jugador->saltar = FALSE;
+    jugador->salto = SALTO;
+    jugador->posicion.y = 330;
+    if(id == 1){
+        jugador->imagen = imagenes[ player_walk_knife_left1 ];
+        jugador->posicion.x = 40;
+        jugador->adelante = TRUE;
+        jugador->key = TRUE;
+    } else {
+        jugador->imagen = imagenes[ player_walk_knife_right1 ];
+        jugador->posicion.x = ANCHURA -100;
+        jugador->adelante = FALSE;
+    }
+}
+
+void initObject(Object *obj, int x, int y, int image)
+{
+    printf("llave jugador 1: %d", jugador1.key);
+    printf("llave jugador 2: %d", jugador2.key);
+    obj->imagen = imagenes[image];
+    obj->posicion.x = x;
+    obj->posicion.y = y;
+}
 
 void cargar_imagenes( SDL_Surface *images[], SDL_RWops *rwimages[] )
 {
@@ -42,6 +71,7 @@ void cargar_imagenes( SDL_Surface *images[], SDL_RWops *rwimages[] )
     strcpy(routes[27], "sprites/stage5.png");
     strcpy(routes[28], "sprites/window1.png");
     strcpy(routes[29], "sprites/key.png");
+    strcpy(routes[30], "sprites/stagefinal.png");
     for ( i=0; i<TOTAL_IMAGENES; i++ ) {
         rwimages[i] = SDL_RWFromFile( routes[i], "rb" );
         images[i] = IMG_LoadPNG_RW(rwimages[i]);
@@ -51,27 +81,33 @@ void cargar_imagenes( SDL_Surface *images[], SDL_RWops *rwimages[] )
     }
 }
 
-void asignar_imagen(Jugador *jugador, char *sentido)
+void asignar_imagen(Jugador *jugador, const char *sentido)
 {
-    if(strcmp(sentido,IZQUIERDA) != 0){
+    if(strcmp(sentido,DERECHA) == 0){
         if(jugador->posicion.x%2 == 0){
             jugador->imagen = imagenes[player_walk_knife_left2];
         } else {
             jugador->imagen = imagenes[player_walk_knife_left1];
         }
         jugador->adelante = TRUE;
-    } else if(strcmp(sentido,DERECHA) != 0){
+    } else if(strcmp(sentido,IZQUIERDA) == 0){
         if(jugador->posicion.x%2 == 0){
             jugador->imagen = imagenes[player_walk_knife_right2];
         } else {
             jugador->imagen = imagenes[player_walk_knife_right1];
         }
         jugador->adelante = FALSE;
-    } else if(strcmp(sentido,ABAJO) != 0){
+    } else if(strcmp(sentido,ABAJO) == 0){
         if( jugador->adelante ){
             jugador->imagen = imagenes[player_down_knife_left];
         } else {
             jugador->imagen = imagenes[player_down_knife_right];
+        }
+    } else if(strcmp(sentido,ESPACIO) == 0){
+        if( jugador->adelante ){
+            jugador->imagen = imagenes[player_attack_left];
+        } else {
+            jugador->imagen = imagenes[player_attack_right];
         }
     }
 }
@@ -128,26 +164,139 @@ void saltar(Jugador* jugador)
     }
 }
 
+void muere(Jugador *jugador){
+    jugador->muerto = TRUE;
+    initPlayer(jugador, jugador->id);
+}
+
+void atacar(Jugador *a, Jugador *b){
+    asignar_imagen(a,ESPACIO);
+    if(a->posicion.x >= b->posicion.x-40 && a->posicion.x <= b->posicion.x+60 && a->posicion.y == b->posicion.y){
+        muere(b);
+        a->key = TRUE;
+        b->key = FALSE;
+        gettimeofday(&start, NULL);
+    }
+}
+
 void mover(Jugador *jugador)
 {
-    char sentido[20];
     Uint8 *keystate = SDL_GetKeyState(NULL); // para saber cuando se presionan 2 teclas al mismo tiempo
-    if(jugador->teclado.key.keysym.sym == SDLK_RIGHT) {
-        jugador->posicion.x = jugador->posicion.x + ADELANTE + (++jugador->aceleracion);
-        strcpy(sentido,"derecha");
-        asignar_imagen(jugador, sentido);
-    } else if(jugador->teclado.key.keysym.sym == SDLK_LEFT){
-        jugador->posicion.x = jugador->posicion.x - ADELANTE - (++jugador->aceleracion);
-        strcpy(sentido,"izquierda");
-        asignar_imagen(jugador, sentido);
-    } else if(jugador->teclado.key.keysym.sym == SDLK_DOWN){
-        strcpy(sentido,"abajo");
-        asignar_imagen(jugador, sentido);
+    //jugador 1
+
+    if ( jugador1.posicion.x >= ANCHURA-20 ) {
+        if ( escenario_actual == stage1 ) {
+            escenario_actual = stage2;
+        } else if ( escenario_actual == stage2 ) {
+            escenario_actual = stage3;
+        } else if( escenario_actual == stage3 ) {
+            escenario_actual = stage4;
+        } else if( escenario_actual == stage4 ) {
+            escenario_actual = stage5;
+        } else if( escenario_actual == stage5 ) {
+            escenario_actual = stageFinal;
+        } else {
+            jugador1.ganador = TRUE;
+        }
+        initPlayer(&jugador2, 2);
+        initPlayer(&jugador1, 1);
+        jugador1.muerto = FALSE;
+        jugador2.muerto = FALSE;
+    } else if(jugador1.posicion.x <= 10 ) {
+        if(escenario_actual == stage1){
+            escenario_actual = stageFinal;
+        } else if(escenario_actual == stage2){
+            escenario_actual = stage1;
+        } else if(escenario_actual == stage3){
+            escenario_actual = stage2;
+        } else if(escenario_actual == stage4){
+            escenario_actual = stage3;
+        } else if(escenario_actual == stage5){
+            escenario_actual = stage4;
+        }
+        initPlayer(&jugador2, 2);
+        initPlayer(&jugador1, 1);
+        jugador1.muerto = FALSE;
+        jugador2.muerto = FALSE;
+    }
+
+    if(jugador1.teclado.key.keysym.sym == SDLK_RIGHT) {
+        if( jugador1.posicion.x <= jugador2.posicion.x-25 || jugador1.posicion.x > jugador2.posicion.x+25 || jugador2.muerto ){
+            jugador1.posicion.x = jugador1.posicion.x + ADELANTE + (++jugador1.aceleracion);
+            asignar_imagen(jugador, DERECHA);
+        }
+    } else if(jugador1.teclado.key.keysym.sym == SDLK_LEFT){
+        if( jugador1.posicion.x >= jugador2.posicion.x+60 || jugador1.posicion.x <= jugador2.posicion.x|| jugador2.muerto ){
+            jugador1.posicion.x = jugador1.posicion.x - ADELANTE - (++jugador1.aceleracion);
+            asignar_imagen(&jugador1,IZQUIERDA);
+        }
+    } else if(jugador1.teclado.key.keysym.sym == SDLK_DOWN){
+        asignar_imagen(&jugador1,ABAJO);
     } else if ( (keystate[SDLK_RIGHT] && keystate[SDLK_UP]) || (keystate[SDLK_LEFT] && keystate[SDLK_UP]) ) {
-        jugador->saltar = TRUE;
-    } else if(jugador->teclado.key.keysym.sym == SDLK_UP){
-        jugador->saltar = NEUTRO;
-        saltar(jugador);
+        jugador1.saltar = TRUE;
+    } else if(jugador1.teclado.key.keysym.sym == SDLK_UP){
+        jugador1.saltar = NEUTRO;
+        saltar(&jugador1);
+    } else if( jugador1.teclado.key.keysym.sym == SDLK_SPACE ){
+        atacar(&jugador1, &jugador2);
+    }
+    //jugador 2
+
+    if ( jugador2.posicion.x >= ANCHURA-20 ) {
+        if ( escenario_actual == stage1 ) {
+            escenario_actual = stage2;
+        } else if ( escenario_actual == stage2 ) {
+            escenario_actual = stage3;
+        } else if( escenario_actual == stage3 ) {
+            escenario_actual = stage4;
+        } else if( escenario_actual == stage4 ) {
+            escenario_actual = stage5;
+        } else if( escenario_actual == stage5 ) {
+            escenario_actual = stageFinal;
+        }
+        initPlayer(&jugador2, 2);
+        initPlayer(&jugador1, 1);
+        jugador1.muerto = FALSE;
+        jugador2.muerto = FALSE;
+    } else if(jugador2.posicion.x <= 10 ) {
+        if(escenario_actual == stage1){
+            escenario_actual = stageFinal;
+        } else if(escenario_actual == stage2){
+            escenario_actual = stage1;
+        } else if(escenario_actual == stage3){
+            escenario_actual = stage2;
+        } else if(escenario_actual == stage4){
+            escenario_actual = stage3;
+        } else if(escenario_actual == stage5){
+            escenario_actual = stage4;
+        } else {
+            jugador2.ganador = TRUE;
+        }
+        initPlayer(&jugador2, 2);
+        initPlayer(&jugador1, 1);
+        jugador1.muerto = FALSE;
+        jugador2.muerto = FALSE;
+    }
+
+    if(jugador2.teclado.key.keysym.sym == SDLK_d) {
+        if( jugador2.posicion.x <= jugador1.posicion.x-25 || jugador2.posicion.x > jugador1.posicion.x+25 || jugador1.muerto ){
+            jugador2.posicion.x = jugador2.posicion.x + ADELANTE + (++jugador2.aceleracion);
+            asignar_imagen(&jugador2, DERECHA);
+        }
+    } else if(jugador2.teclado.key.keysym.sym == SDLK_a){
+        if( jugador2.posicion.x >= jugador1.posicion.x+60 || jugador2.posicion.x <= jugador1.posicion.x|| jugador1.muerto ){
+            jugador2.posicion.x = jugador2.posicion.x - ADELANTE - (++jugador2.aceleracion);
+            asignar_imagen(&jugador2,IZQUIERDA);
+        }
+    } else if(jugador2.teclado.key.keysym.sym == SDLK_s){
+        asignar_imagen(&jugador2,ABAJO);
+    } else if ( (keystate[SDLK_d] && keystate[SDLK_w]) || (keystate[SDLK_a] && keystate[SDLK_w]) ) {
+        jugador2.saltar = TRUE;
+    } else if(jugador2.teclado.key.keysym.sym == SDLK_w){
+        jugador2.saltar = NEUTRO;
+        saltar(&jugador2);
+    } else if( jugador2.teclado.key.keysym.sym == SDLK_z ){
+        atacar(&jugador2, &jugador1);
     }
 
 }
@@ -165,29 +314,4 @@ int passTime( struct timeval start ) {
     seconds = timeval_diff(&start, &end);
     return seconds*1000;
 
-}
-
-void initPlayer( Jugador *jugador, short id ){
-    jugador->id = id;
-    jugador->aceleracion = ACELERACION;
-    jugador->saltar = FALSE;
-    jugador->salto = SALTO;
-    jugador->posicion.y = 330;
-    if(id == 1){
-        jugador->imagen = imagenes[ player_walk_knife_left1 ];
-        jugador->posicion.x = 10;
-        jugador->adelante = TRUE;
-        jugador->key = TRUE;
-    } else {
-        jugador->imagen = imagenes[ player_walk_knife_right1 ];
-        jugador->posicion.x = ANCHURA -100;
-        jugador->adelante = FALSE;
-    }
-}
-
-void initObject(Object *obj, int x, int y)
-{
-    obj->imagen = imagenes[key];
-    obj->posicion.x = x;
-    obj->posicion.y = y;
 }

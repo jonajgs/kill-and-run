@@ -25,6 +25,8 @@ typedef struct{
     boolean adelante;
     boolean saltar;
     boolean key;
+    boolean muerto;
+    boolean ganador;
 }Jugador;
 
 typedef struct{
@@ -62,5 +64,5 @@ enum {
     stage4,
     stage5,
     window,
-    key
+    key, stageFinal
 };
