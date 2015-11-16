@@ -7,7 +7,7 @@ int main()
 {
     SDL_Surface *ventana;
     int init, exit = 0, time;
-    Object llave, antorcha1, antorcha2, muerto;
+    struct timeval time_out;
 
     init = SDL_Init( SDL_INIT_VIDEO );
     if( init >= 0 ) {
@@ -17,12 +17,17 @@ int main()
         initObject(&antorcha1, 100, 40, lamp1);
         initObject(&antorcha2, 1120, 40, lamp1);
         initObject(&muerto, 300, 10, dead1);
-        initObject(&llave, 0, 0, key);
         ventana = SDL_SetVideoMode(ANCHURA, ALTURA, 16, SDL_HWSURFACE|SDL_DOUBLEBUF);
         if( ventana ) {
-            initPlayer( &jugador1, 1 );
-            initPlayer( &jugador2, 2 );
+            initPlayer( &jugador1, 1, FALSE );
+            initPlayer( &jugador2, 2, TRUE );
             gettimeofday(&start, NULL);
+            gettimeofday(&time_out, NULL);
+            if(jugador1.key){
+                initObject(&llave, 0, 0, key);
+            } else {
+                initObject(&llave, ANCHURA-100, 0, key);
+            }
             while ( !exit ) {
                 SDL_BlitSurface( imagenes[escenario_actual], NULL, ventana, NULL );
                 if(!jugador1.muerto || passTime(start) > 3000){
@@ -34,7 +39,7 @@ int main()
                     jugador2.muerto = FALSE;
                 }
                 SDL_BlitSurface( llave.imagen, NULL, ventana, &llave.posicion );
-                if( escenario_actual != stage5 && escenario_actual != stage1){
+                if( escenario_actual != stage5 && escenario_actual != stage1 && escenario_actual != stageFinal){
                     SDL_BlitSurface( antorcha1.imagen, NULL, ventana, &antorcha1.posicion);
                     SDL_BlitSurface( antorcha2.imagen, NULL, ventana, &antorcha2.posicion);
                 }
@@ -42,32 +47,6 @@ int main()
                     SDL_BlitSurface( muerto.imagen, NULL, ventana, &muerto.posicion);
                 }
                 SDL_Flip( ventana );
-                if( jugador2.saltar == FALSE && jugador2.posicion.y == ALTURA_MINIMA ){
-                    while ( SDL_PollEvent( &jugador2.teclado )) {
-                        switch ( jugador2.teclado.type ) {
-                            case SDL_KEYDOWN:
-                                mover( &jugador2 );
-                                break;
-                            case SDL_QUIT:
-                                exit = true;
-                                break;
-                            case SDL_KEYUP:
-                                if ( jugador2.teclado.key.keysym.sym == SDLK_s || jugador2.teclado.key.keysym.sym == SDLK_z) {
-                                    if( jugador2.adelante ) {
-                                        jugador2.imagen = imagenes[player_walk_knife_left1];
-                                    } else {
-                                        jugador2.imagen = imagenes[player_walk_knife_right1];
-                                    }
-                                }
-                                jugador2.aceleracion = ACELERACION;
-
-                                break;
-                        }
-                    }
-
-                } else if(jugador2.saltar == TRUE){
-                    saltar(&jugador2);
-                }
                 if( jugador1.saltar == FALSE && jugador1.posicion.y == ALTURA_MINIMA ){
                     while ( SDL_PollEvent( &jugador1.teclado )) {
                         switch ( jugador1.teclado.type ) {
@@ -100,11 +79,37 @@ int main()
                         }
                     }
 
-                } else if(jugador1.saltar == TRUE) {
+                } else if(jugador1.saltar) {
                     saltar(&jugador1);
                 }
+                if( jugador2.saltar == FALSE && jugador2.posicion.y == ALTURA_MINIMA ){
+                    while ( SDL_PollEvent( &jugador2.teclado )) {
+                        switch ( jugador2.teclado.type ) {
+                            case SDL_KEYDOWN:
+                                mover( &jugador2 );
+                                break;
+                            case SDL_QUIT:
+                                exit = true;
+                                break;
+                            case SDL_KEYUP:
+                                if ( jugador2.teclado.key.keysym.sym == SDLK_s || jugador2.teclado.key.keysym.sym == SDLK_z) {
+                                    if( jugador2.adelante ) {
+                                        jugador2.imagen = imagenes[player_walk_knife_left1];
+                                    } else {
+                                        jugador2.imagen = imagenes[player_walk_knife_right1];
+                                    }
+                                }
+                                jugador2.aceleracion = ACELERACION;
 
-                if( (time = passTime(start)) <= 700 ) {
+                                break;
+                        }
+                    }
+
+                } else if(jugador2.saltar){
+                    saltar(&jugador2);
+                }
+
+                if( (time = passTime(time_out)) <= 700 ) {
                     if( time < 200 ) {
                         antorcha1.imagen = imagenes[lamp2];
                         antorcha2.imagen = imagenes[lamp3];
@@ -119,7 +124,7 @@ int main()
                         muerto.imagen = imagenes[ dead2 ];
                     }
                 } else {
-                    gettimeofday( &start, NULL );
+                    gettimeofday( &time_out, NULL );
                 }
 
 

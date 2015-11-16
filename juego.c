@@ -8,10 +8,11 @@
 SDL_Surface *imagenes[ TOTAL_IMAGENES ];
 SDL_RWops *rwimagenes[ TOTAL_IMAGENES ];
 int escenario_actual;
+Object llave, antorcha1, antorcha2, muerto;
 Jugador jugador1, jugador2;
 struct timeval start;
 
-void initPlayer( Jugador *jugador, short id ){
+void initPlayer( Jugador *jugador, short id, boolean key ){
     jugador->id = id;
     jugador->aceleracion = ACELERACION;
     jugador->saltar = FALSE;
@@ -21,18 +22,20 @@ void initPlayer( Jugador *jugador, short id ){
         jugador->imagen = imagenes[ player_walk_knife_left1 ];
         jugador->posicion.x = 40;
         jugador->adelante = TRUE;
-        jugador->key = TRUE;
     } else {
         jugador->imagen = imagenes[ player_walk_knife_right1 ];
         jugador->posicion.x = ANCHURA -100;
-        jugador->adelante = FALSE;
+        jugador->adelante = TRUE;
+    }
+    if(key){
+        jugador->key = TRUE;
+    } else {
+        jugador->key = FALSE;
     }
 }
 
 void initObject(Object *obj, int x, int y, int image)
 {
-    printf("llave jugador 1: %d", jugador1.key);
-    printf("llave jugador 2: %d", jugador2.key);
     obj->imagen = imagenes[image];
     obj->posicion.x = x;
     obj->posicion.y = y;
@@ -166,7 +169,12 @@ void saltar(Jugador* jugador)
 
 void muere(Jugador *jugador){
     jugador->muerto = TRUE;
-    initPlayer(jugador, jugador->id);
+    initPlayer(jugador, jugador->id, FALSE);
+    if(jugador->id == 1){
+        llave.posicion.x = ANCHURA-100;
+    } else {
+        llave.posicion.x = 0;
+    }
 }
 
 void atacar(Jugador *a, Jugador *b){
@@ -183,8 +191,8 @@ void mover(Jugador *jugador)
 {
     Uint8 *keystate = SDL_GetKeyState(NULL); // para saber cuando se presionan 2 teclas al mismo tiempo
     //jugador 1
-
-    if ( jugador1.posicion.x >= ANCHURA-20 ) {
+        printf("%d %d\n", jugador1.posicion.x, jugador1.key);
+    if ( jugador1.posicion.x >= ANCHURA-20  && jugador1.key == TRUE ) {
         if ( escenario_actual == stage1 ) {
             escenario_actual = stage2;
         } else if ( escenario_actual == stage2 ) {
@@ -198,11 +206,11 @@ void mover(Jugador *jugador)
         } else {
             jugador1.ganador = TRUE;
         }
-        initPlayer(&jugador2, 2);
-        initPlayer(&jugador1, 1);
+        initPlayer(&jugador2, 2, jugador2.key);
+        initPlayer(&jugador1, 1, jugador1.key);
         jugador1.muerto = FALSE;
         jugador2.muerto = FALSE;
-    } else if(jugador1.posicion.x <= 10 ) {
+    } else if(jugador1.posicion.x <= 10 && jugador1.key == TRUE ) {
         if(escenario_actual == stage1){
             escenario_actual = stageFinal;
         } else if(escenario_actual == stage2){
@@ -214,16 +222,18 @@ void mover(Jugador *jugador)
         } else if(escenario_actual == stage5){
             escenario_actual = stage4;
         }
-        initPlayer(&jugador2, 2);
-        initPlayer(&jugador1, 1);
+        initPlayer(&jugador2, 2, jugador2.key);
+        initPlayer(&jugador1, 1, jugador1.key);
         jugador1.muerto = FALSE;
         jugador2.muerto = FALSE;
     }
 
     if(jugador1.teclado.key.keysym.sym == SDLK_RIGHT) {
         if( jugador1.posicion.x <= jugador2.posicion.x-25 || jugador1.posicion.x > jugador2.posicion.x+25 || jugador2.muerto ){
-            jugador1.posicion.x = jugador1.posicion.x + ADELANTE + (++jugador1.aceleracion);
-            asignar_imagen(jugador, DERECHA);
+            if(jugador1.key || jugador1.posicion.x < ANCHURA-70){
+                jugador1.posicion.x = jugador1.posicion.x + ADELANTE + (++jugador1.aceleracion);
+                asignar_imagen(jugador, DERECHA);
+            }
         }
     } else if(jugador1.teclado.key.keysym.sym == SDLK_LEFT){
         if( jugador1.posicion.x >= jugador2.posicion.x+60 || jugador1.posicion.x <= jugador2.posicion.x|| jugador2.muerto ){
@@ -242,7 +252,7 @@ void mover(Jugador *jugador)
     }
     //jugador 2
 
-    if ( jugador2.posicion.x >= ANCHURA-20 ) {
+    if ( jugador2.posicion.x >= ANCHURA-20 && jugador2.key == TRUE ) {
         if ( escenario_actual == stage1 ) {
             escenario_actual = stage2;
         } else if ( escenario_actual == stage2 ) {
@@ -254,11 +264,11 @@ void mover(Jugador *jugador)
         } else if( escenario_actual == stage5 ) {
             escenario_actual = stageFinal;
         }
-        initPlayer(&jugador2, 2);
-        initPlayer(&jugador1, 1);
+        initPlayer(&jugador2, 2, jugador2.key);
+        initPlayer(&jugador1, 1, jugador1.key);
         jugador1.muerto = FALSE;
         jugador2.muerto = FALSE;
-    } else if(jugador2.posicion.x <= 10 ) {
+    } else if(jugador2.posicion.x <= 10 && jugador2.key == TRUE) {
         if(escenario_actual == stage1){
             escenario_actual = stageFinal;
         } else if(escenario_actual == stage2){
@@ -272,16 +282,18 @@ void mover(Jugador *jugador)
         } else {
             jugador2.ganador = TRUE;
         }
-        initPlayer(&jugador2, 2);
-        initPlayer(&jugador1, 1);
+        initPlayer(&jugador2, 2, jugador2.key);
+        initPlayer(&jugador1, 1, jugador1.key);
         jugador1.muerto = FALSE;
         jugador2.muerto = FALSE;
     }
 
     if(jugador2.teclado.key.keysym.sym == SDLK_d) {
         if( jugador2.posicion.x <= jugador1.posicion.x-25 || jugador2.posicion.x > jugador1.posicion.x+25 || jugador1.muerto ){
-            jugador2.posicion.x = jugador2.posicion.x + ADELANTE + (++jugador2.aceleracion);
-            asignar_imagen(&jugador2, DERECHA);
+            if(jugador2.key || jugador2.posicion.x < ANCHURA-70){
+                jugador2.posicion.x = jugador2.posicion.x + ADELANTE + (++jugador2.aceleracion);
+                asignar_imagen(&jugador2, DERECHA);
+            }
         }
     } else if(jugador2.teclado.key.keysym.sym == SDLK_a){
         if( jugador2.posicion.x >= jugador1.posicion.x+60 || jugador2.posicion.x <= jugador1.posicion.x|| jugador1.muerto ){
