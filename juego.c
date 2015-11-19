@@ -239,7 +239,7 @@ void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
             sendMsg(COM_AGACHARSE,jugador1);
         }
     } else if ( (keystate[SDLK_RIGHT] && keystate[SDLK_UP]) || (keystate[SDLK_LEFT] && keystate[SDLK_UP])) {
-        jugador1->saltar = TRUE;
+        //jugador1->saltar = TRUE;
     } else if(jugador1->teclado.key.keysym.sym == SDLK_UP){
         jugador1->saltar = NEUTRO;
         saltar(jugador1);
