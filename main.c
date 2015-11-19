@@ -7,9 +7,10 @@ int main()
 {
     Jugador jugador1, jugador2,*jugadorLocal,*jugadorContrario;
     SDL_Surface *ventana;
-    int init, time,actionContrario,posXContrario,acelContrario;
+    int init, time;
+    unsigned int actionContrario,posXContrario,acelContrario;
     struct timeval time_out;
-    bool haveKey,isServer = true;
+    bool haveKey,isServer = false;
 
     if(openCommunication(isServer,&haveKey))
     {
@@ -159,6 +160,5 @@ int main()
     printf("Exit success\n");
     SDL_FreeSurface( ventana );
     SDL_Quit();
-
     return EXIT_SUCCESS;
 }

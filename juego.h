@@ -24,6 +24,6 @@ void atacar(Jugador*, Jugador*);
 void mover(Jugador*,Jugador*,Jugador*);
 double timeval_diff(struct timeval*, struct timeval*);
 int passTime( struct timeval);
-void actualizaContrario(int,int,int,Jugador* ,Jugador*);
+void actualizaContrario(unsigned int,unsigned int,unsigned int,Jugador* ,Jugador*);
 
 #endif // JUEGO_H_INCLUDED

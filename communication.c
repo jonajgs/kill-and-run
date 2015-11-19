@@ -41,7 +41,7 @@ bool openCommunication(bool isServer,bool *haveKey)
             }else{
                 buffer[0] = COM_PETICION_CONEXION;
                 sendto(fd_socket,buffer,1,0,(struct sockaddr *)&server_addr,sizeof(server_addr));
-                printf("Esperando jugador...\n");
+                printf("Se envio, Esperando jugador...\n");
                 recvfrom(fd_socket,buffer,sizeof(buffer),0,(struct sockaddr *)&client_addr,&client_len);
                 res = buffer[0];
                 if(res == COM_RESPUESTA_CONEXION) *haveKey = true;
@@ -88,13 +88,14 @@ void sendMsg(int action, Jugador *j){
     msg[0]=action;
     msg[1]=j->posicion.x >> 8;
     msg[2]=j->posicion.x;
+    printf("%d - %d \n",msg[1],msg[2]);
     res = sendto(fd_socket,msg,len,0,(struct sockaddr *)&server_addr,sizeof(server_addr));
     if(res < 0) printf("no se envio mensaje");
 }
 
-void recvMsg(int* action, int* posX,int* acel){
+void recvMsg(unsigned int* action, unsigned int* posX,unsigned int* acel){
     int len;
-    char buffer[BUFFER_LEN];
+    unsigned char buffer[BUFFER_LEN];
     len=recvfrom(fd_socket,buffer,sizeof(buffer),0,(struct sockaddr *)&client_addr,&client_len);
     if(len > 0){
         *action = buffer[0];
