@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "constantes.c"
+#include "constantes.h"
 
 #include <SDL/SDL_image.h>
 #include <SDL/SDL.h>

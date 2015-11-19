@@ -1,16 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/time.h>
-#include "estructuras.c"
-#include "constantes.c"
+#include "juego.h"
 
-SDL_Surface *imagenes[ TOTAL_IMAGENES ];
-SDL_RWops *rwimagenes[ TOTAL_IMAGENES ];
-int escenario_actual;
-Object llave, antorcha1, antorcha2, muerto;
-Jugador jugador1, jugador2;
-struct timeval start;
 
 void initPlayer( Jugador *jugador, short id, boolean key ){
     jugador->id = id;
@@ -187,12 +176,12 @@ void atacar(Jugador *a, Jugador *b){
     }
 }
 
-void mover(Jugador *jugador)
+void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
 {
     Uint8 *keystate = SDL_GetKeyState(NULL); // para saber cuando se presionan 2 teclas al mismo tiempo
     //jugador 1
-        printf("%d %d\n", jugador1.posicion.x, jugador1.key);
-    if ( jugador1.posicion.x >= ANCHURA-20  && jugador1.key == TRUE ) {
+        //printf("%d %d\n", jugador1->posicion.x, jugador1->key);
+    if ( jugador1->posicion.x >= ANCHURA-20  && jugador1->key == TRUE ) {
         if ( escenario_actual == stage1 ) {
             escenario_actual = stage2;
         } else if ( escenario_actual == stage2 ) {
@@ -204,13 +193,13 @@ void mover(Jugador *jugador)
         } else if( escenario_actual == stage5 ) {
             escenario_actual = stageFinal;
         } else {
-            jugador1.ganador = TRUE;
+            jugador1->ganador = TRUE;
         }
-        initPlayer(&jugador2, 2, jugador2.key);
-        initPlayer(&jugador1, 1, jugador1.key);
-        jugador1.muerto = FALSE;
-        jugador2.muerto = FALSE;
-    } else if(jugador1.posicion.x <= 10 && jugador1.key == TRUE ) {
+        initPlayer(jugador2, jugador2->id, jugador2->key);
+        initPlayer(jugador1, jugador1->id, jugador1->key);
+        jugador1->muerto = FALSE;
+        jugador2->muerto = FALSE;
+    } else if(jugador1->posicion.x <= 10 && jugador1->key == TRUE ) {
         if(escenario_actual == stage1){
             escenario_actual = stageFinal;
         } else if(escenario_actual == stage2){
@@ -222,37 +211,52 @@ void mover(Jugador *jugador)
         } else if(escenario_actual == stage5){
             escenario_actual = stage4;
         }
-        initPlayer(&jugador2, 2, jugador2.key);
-        initPlayer(&jugador1, 1, jugador1.key);
-        jugador1.muerto = FALSE;
-        jugador2.muerto = FALSE;
+        initPlayer(jugador2, jugador2->id, jugador2->key);
+        initPlayer(jugador1, jugador1->id, jugador1->key);
+        jugador1->muerto = FALSE;
+        jugador2->muerto = FALSE;
     }
 
-    if(jugador1.teclado.key.keysym.sym == SDLK_RIGHT) {
-        if( jugador1.posicion.x <= jugador2.posicion.x-25 || jugador1.posicion.x > jugador2.posicion.x+25 || jugador2.muerto ){
-            if(jugador1.key || jugador1.posicion.x < ANCHURA-70){
-                jugador1.posicion.x = jugador1.posicion.x + ADELANTE + (++jugador1.aceleracion);
-                asignar_imagen(jugador, DERECHA);
+    if(jugador1->teclado.key.keysym.sym == SDLK_RIGHT) {
+        if( jugador1->posicion.x <= jugador2->posicion.x-25 || jugador1->posicion.x > jugador2->posicion.x+25 || jugador2->muerto ){
+            if(jugador1->key || jugador1->posicion.x < ANCHURA-70){
+                jugador1->posicion.x = jugador1->posicion.x + ADELANTE + (++jugador1->aceleracion);
+                asignar_imagen(jugador1, DERECHA);
+                if(jugador1 == jugadorLocal){//solo el jugador local manda mensajes, el contrario recibe
+                    sendMsg(COM_MOVIMIENTO,jugador1);
+                }
             }
         }
-    } else if(jugador1.teclado.key.keysym.sym == SDLK_LEFT){
-        if( jugador1.posicion.x >= jugador2.posicion.x+60 || jugador1.posicion.x <= jugador2.posicion.x|| jugador2.muerto ){
-            jugador1.posicion.x = jugador1.posicion.x - ADELANTE - (++jugador1.aceleracion);
-            asignar_imagen(&jugador1,IZQUIERDA);
+    } else if(jugador1->teclado.key.keysym.sym == SDLK_LEFT){
+        if( jugador1->posicion.x >= jugador2->posicion.x+60 || jugador1->posicion.x <= jugador2->posicion.x|| jugador2->muerto ){
+            jugador1->posicion.x = jugador1->posicion.x - ADELANTE - (++jugador1->aceleracion);
+            asignar_imagen(jugador1,IZQUIERDA);
+            if(jugador1 == jugadorLocal){//solo el jugador local manda mensajes, el contrario recibe
+                sendMsg(COM_MOVIMIENTO,jugador1);
+            }
         }
-    } else if(jugador1.teclado.key.keysym.sym == SDLK_DOWN){
-        asignar_imagen(&jugador1,ABAJO);
+    } else if(jugador1->teclado.key.keysym.sym == SDLK_DOWN){
+        asignar_imagen(jugador1,ABAJO);
+        if(jugador1 == jugadorLocal){//solo el jugador local manda mensajes, el contrario recibe
+            sendMsg(COM_AGACHARSE,jugador1);
+        }
     } else if ( (keystate[SDLK_RIGHT] && keystate[SDLK_UP]) || (keystate[SDLK_LEFT] && keystate[SDLK_UP]) ) {
-        jugador1.saltar = TRUE;
-    } else if(jugador1.teclado.key.keysym.sym == SDLK_UP){
-        jugador1.saltar = NEUTRO;
-        saltar(&jugador1);
-    } else if( jugador1.teclado.key.keysym.sym == SDLK_SPACE ){
-        atacar(&jugador1, &jugador2);
+        jugador1->saltar = TRUE;
+    } else if(jugador1->teclado.key.keysym.sym == SDLK_UP){
+        jugador1->saltar = NEUTRO;
+        saltar(jugador1);
+        if(jugador1 == jugadorLocal){//solo el jugador local manda mensajes, el contrario recibe
+            sendMsg(COM_SALTO,jugador1);
+        }
+    } else if( jugador1->teclado.key.keysym.sym == SDLK_SPACE ){
+        atacar(jugador1, jugador2);
+        if(jugador1 == jugadorLocal){//solo el jugador local manda mensajes, el contrario recibe
+            sendMsg(COM_ATAQUE,jugador1);
+        }
     }
     //jugador 2
 
-    if ( jugador2.posicion.x >= ANCHURA-20 && jugador2.key == TRUE ) {
+    /*if ( jugador2->posicion.x >= ANCHURA-20 && jugador2->key == TRUE ) {
         if ( escenario_actual == stage1 ) {
             escenario_actual = stage2;
         } else if ( escenario_actual == stage2 ) {
@@ -264,11 +268,11 @@ void mover(Jugador *jugador)
         } else if( escenario_actual == stage5 ) {
             escenario_actual = stageFinal;
         }
-        initPlayer(&jugador2, 2, jugador2.key);
-        initPlayer(&jugador1, 1, jugador1.key);
-        jugador1.muerto = FALSE;
-        jugador2.muerto = FALSE;
-    } else if(jugador2.posicion.x <= 10 && jugador2.key == TRUE) {
+        initPlayer(jugador2, jugador2->id, jugador2->key);
+        initPlayer(jugador1, jugador1->id, jugador1->key);
+        jugador1->muerto = FALSE;
+        jugador2->muerto = FALSE;
+    } else if(jugador2->posicion.x <= 10 && jugador2->key == TRUE) {
         if(escenario_actual == stage1){
             escenario_actual = stageFinal;
         } else if(escenario_actual == stage2){
@@ -280,37 +284,13 @@ void mover(Jugador *jugador)
         } else if(escenario_actual == stage5){
             escenario_actual = stage4;
         } else {
-            jugador2.ganador = TRUE;
+            jugador2->ganador = TRUE;
         }
-        initPlayer(&jugador2, 2, jugador2.key);
-        initPlayer(&jugador1, 1, jugador1.key);
-        jugador1.muerto = FALSE;
-        jugador2.muerto = FALSE;
-    }
-
-    if(jugador2.teclado.key.keysym.sym == SDLK_d) {
-        if( jugador2.posicion.x <= jugador1.posicion.x-25 || jugador2.posicion.x > jugador1.posicion.x+25 || jugador1.muerto ){
-            if(jugador2.key || jugador2.posicion.x < ANCHURA-70){
-                jugador2.posicion.x = jugador2.posicion.x + ADELANTE + (++jugador2.aceleracion);
-                asignar_imagen(&jugador2, DERECHA);
-            }
-        }
-    } else if(jugador2.teclado.key.keysym.sym == SDLK_a){
-        if( jugador2.posicion.x >= jugador1.posicion.x+60 || jugador2.posicion.x <= jugador1.posicion.x|| jugador1.muerto ){
-            jugador2.posicion.x = jugador2.posicion.x - ADELANTE - (++jugador2.aceleracion);
-            asignar_imagen(&jugador2,IZQUIERDA);
-        }
-    } else if(jugador2.teclado.key.keysym.sym == SDLK_s){
-        asignar_imagen(&jugador2,ABAJO);
-    } else if ( (keystate[SDLK_d] && keystate[SDLK_w]) || (keystate[SDLK_a] && keystate[SDLK_w]) ) {
-        jugador2.saltar = TRUE;
-    } else if(jugador2.teclado.key.keysym.sym == SDLK_w){
-        jugador2.saltar = NEUTRO;
-        saltar(&jugador2);
-    } else if( jugador2.teclado.key.keysym.sym == SDLK_z ){
-        atacar(&jugador2, &jugador1);
-    }
-
+        initPlayer(jugador2, jugador2->id, jugador2->key);
+        initPlayer(jugador1, jugador1->id, jugador1->key);
+        jugador1->muerto = FALSE;
+        jugador2->muerto = FALSE;
+    }*/
 }
 
 double timeval_diff(struct timeval *start, struct timeval *end){
@@ -326,4 +306,43 @@ int passTime( struct timeval start ) {
     seconds = timeval_diff(&start, &end);
     return seconds*1000;
 
+}
+
+void actualizaContrario(int action,int posXContrario,int acelContrario,Jugador* jugadorLocal, Jugador* jugadorContrario){
+    if(action != 0){
+        switch(action){
+        case COM_FIN_DE_JUEGO:
+            //mostrar que se terminó el juego
+            exitGame = true;
+            break;
+        case COM_MOVIMIENTO:
+            if(posXContrario < jugadorContrario->posicion.x){
+                //es menor, se movio a la izquierda
+                jugadorContrario->teclado.key.keysym.sym = SDLK_LEFT;
+            }else if(posXContrario > jugadorContrario->posicion.x){
+                jugadorContrario->teclado.key.keysym.sym = SDLK_RIGHT;
+            }
+            break;
+        case COM_AGACHARSE:
+            jugadorContrario->teclado.key.keysym.sym = SDLK_DOWN;
+            break;
+        case COM_ATAQUE:
+            jugadorContrario->teclado.key.keysym.sym = SDLK_SPACE;
+            break;
+        case COM_SALTO:
+            jugadorContrario->teclado.key.keysym.sym = SDLK_UP;
+            break;
+        case COM_LLAVE:
+            break;
+        case COM_SALTO_Y_MOVIMIENTO:
+            break;
+        case COM_MOVIMIENTO_SALTO_Y_ATAQUE:
+            break;
+        default:;
+        }
+        mover(jugadorContrario,jugadorLocal,jugadorLocal);
+        //al ser el mismo programa se supone que no debería cambiar, pero en caso de perder paquetes debemos sincronizar
+        if(jugadorContrario->aceleracion != acelContrario) jugadorContrario->aceleracion = acelContrario;
+        if(jugadorContrario->posicion.x != posXContrario) jugadorContrario->posicion.x = posXContrario;
+    }
 }
