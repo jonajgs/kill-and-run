@@ -113,6 +113,17 @@ int main()
                     {
                         saltar(jugadorLocal);
                     }
+                    if ( jugadorContrario->teclado.key.keysym.sym == SDLK_DOWN || jugadorContrario->teclado.key.keysym.sym == SDLK_SPACE )
+                    {
+                        if( jugadorContrario->adelante )
+                        {
+                            jugadorContrario->imagen = imagenes[player_walk_knife_left1];
+                        }
+                        else
+                        {
+                            jugadorContrario->imagen = imagenes[player_walk_knife_right1];
+                        }
+                    }
 
                     if( (time = passTime(time_out)) <= 700 )
                     {
