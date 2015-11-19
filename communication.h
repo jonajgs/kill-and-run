@@ -18,7 +18,7 @@
 //#define IPV6_ADDR "fe80::8200:bff:fe87:c5df"  //Angel lap
 //#define IPV6_ADDR "FF02::224:0:0:133" //multicast
 //#define IPV6_ADDR "::1"
-#define PORT 12345
+#define PORT 1993
 #define BUFFER_LEN 256
 
 //constantes de acciones del jugador

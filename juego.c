@@ -238,7 +238,7 @@ void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
         if(jugador1 == jugadorLocal){//solo el jugador local manda mensajes, el contrario recibe
             sendMsg(COM_AGACHARSE,jugador1);
         }
-    } else if ( (keystate[SDLK_RIGHT] && keystate[SDLK_UP]) || (keystate[SDLK_LEFT] && keystate[SDLK_UP]) ) {
+    } else if ( (keystate[SDLK_RIGHT] && keystate[SDLK_UP]) || (keystate[SDLK_LEFT] && keystate[SDLK_UP])) {
         jugador1->saltar = TRUE;
     } else if(jugador1->teclado.key.keysym.sym == SDLK_UP){
         jugador1->saltar = NEUTRO;
@@ -297,6 +297,7 @@ Jugador* jugadorLocal, Jugador* jugadorContrario){
         case COM_LLAVE:
             break;
         case COM_SALTO_Y_MOVIMIENTO:
+            //jugadorContrario->saltar = TRUE;
             break;
         case COM_MOVIMIENTO_SALTO_Y_ATAQUE:
             break;
@@ -306,5 +307,13 @@ Jugador* jugadorLocal, Jugador* jugadorContrario){
         //al ser el mismo programa se supone que no debería cambiar, pero en caso de perder paquetes debemos sincronizar
         if(jugadorContrario->aceleracion != acelContrario) jugadorContrario->aceleracion = acelContrario;
         if(jugadorContrario->posicion.x != posXContrario) jugadorContrario->posicion.x = posXContrario;
+    }else{
+        if(jugadorContrario->teclado.key.keysym.sym == SDLK_UP && jugadorContrario->posicion.y < ALTURA_MINIMA){
+            mover(jugadorContrario,jugadorLocal,jugadorLocal);
+        }
+        else{
+            jugadorContrario->teclado.key.keysym.sym = SDLK_RIGHT;
+        }
     }
+    saltar(jugadorContrario);
 }
