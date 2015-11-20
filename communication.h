@@ -13,11 +13,10 @@
 #include <time.h>
 #include "estructuras.h"
 
-//#define IPV6_ADDR "fe80::16d6:4dff:feab:f491"  //escritorio
-#define IPV6_ADDR "fe80::6aa3:c4ff:fec1:31c6"
+//#define IPV6_ADDR "fe80::16d6:4dff:feab:f491"  //Angel escritorio
+#define IPV6_ADDR "fe80::6aa3:c4ff:fec1:31c6"   //Jonathan lap
 //#define IPV6_ADDR "fe80::8200:bff:fe87:c5df"  //Angel lap
-//#define IPV6_ADDR "FF02::224:0:0:133" //multicast
-//#define IPV6_ADDR "::1"
+
 #define PORT 1993
 #define BUFFER_LEN 256
 
