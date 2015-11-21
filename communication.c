@@ -84,7 +84,6 @@ void closeCommunication(){
 }
 
 void sendMsg(int action, Jugador *j){
-    int res;
     static int lastAcceleration=0;
     unsigned char msg[4];
     int len;
@@ -96,8 +95,8 @@ void sendMsg(int action, Jugador *j){
     msg[0]=action;
     msg[1]=j->posicion.x >> 8;
     msg[2]=j->posicion.x;
-    res = sendto(fd_socket,msg,len,0,(struct sockaddr *)&server_addr,sizeof(server_addr));
-    if(res < 0) printf("no se envio mensaje");
+    if(sendto(fd_socket,msg,len,0,(struct sockaddr *)&server_addr,sizeof(server_addr)) < 0)
+        printf("no se envio mensaje");
 }
 
 void recvMsg(unsigned int* action, unsigned int* posX,unsigned int* acel){

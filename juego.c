@@ -9,6 +9,7 @@ void initPlayer( Jugador *jugador, short id, boolean key ){
     jugador->posicion.y = 330;
     jugador->key = key;
     jugador->adelante = TRUE;
+    jugador->avance = 0;
     if(id == 1){
         jugador->imagen = imagenes[ player_walk_knife_left1 ];
         jugador->posicion.x = 40;
@@ -174,37 +175,43 @@ void atacar(Jugador *a, Jugador *b){
 void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
 {
     Uint8 *keystate = SDL_GetKeyState(NULL); // para saber cuando se presionan 2 teclas al mismo tiempo
-    if ( jugador1->posicion.x >= ANCHURA-20  && jugador1->key == TRUE ) {
-        if ( escenario_actual == stage1 ) {
-            escenario_actual = stage2;
-        } else if ( escenario_actual == stage2 ) {
-            escenario_actual = stage3;
-        } else if( escenario_actual == stage3 ) {
-            escenario_actual = stage4;
-        } else if( escenario_actual == stage4 ) {
-            escenario_actual = stage5;
-        } else if( escenario_actual == stage5 ) {
-            escenario_actual = stageFinal;
-        } else {
-            jugador1->ganador = TRUE;
-            exitGame = true;
+
+    //id == 1 es el jugador de la izquierda siempre, debe avanzar a la derecha
+    //id == 2 es el jugador de la derecha   siempre, debe avanzar a la izquierda
+    if (
+    ( jugador1->posicion.x >= ANCHURA-20  && jugador1->key == TRUE && jugador1->id == 1) ||
+    ( jugador1->posicion.x <= 10          && jugador1->key == TRUE && jugador1->id == 2)
+    ) {
+        if(jugador1->avance < 0){
+            if ( escenario_actual == stageFinal ) {
+                escenario_actual = stage5;
+            } else if ( escenario_actual == stage5 ) {
+                escenario_actual = stage4;
+            } else if( escenario_actual == stage4 ) {
+                escenario_actual = stage3;
+            } else if( escenario_actual == stage3 ) {
+                escenario_actual = stage2;
+            } else if( escenario_actual == stage2 ) {
+                escenario_actual = stage1;
+            }
+        }else{
+            if ( escenario_actual == stage1 ) {
+                escenario_actual = stage2;
+            } else if ( escenario_actual == stage2 ) {
+                escenario_actual = stage3;
+            } else if( escenario_actual == stage3 ) {
+                escenario_actual = stage4;
+            } else if( escenario_actual == stage4 ) {
+                escenario_actual = stage5;
+            } else if( escenario_actual == stage5 ) {
+                escenario_actual = stageFinal;
+            } else {//gana cuando pasa el stage final y tiene el avance positivo
+                jugador1->ganador = TRUE;
+                exitGame = true;
+            }
         }
-        initPlayer(jugador2, jugador2->id, jugador2->key);
-        initPlayer(jugador1, jugador1->id, jugador1->key);
-        jugador1->muerto = FALSE;
-        jugador2->muerto = FALSE;
-    } else if(jugador1->posicion.x <= 10 && jugador1->key == TRUE ) {
-        if(escenario_actual == stage1){
-            escenario_actual = stageFinal;
-        } else if(escenario_actual == stage2){
-            escenario_actual = stage1;
-        } else if(escenario_actual == stage3){
-            escenario_actual = stage2;
-        } else if(escenario_actual == stage4){
-            escenario_actual = stage3;
-        } else if(escenario_actual == stage5){
-            escenario_actual = stage4;
-        }
+        jugador1->avance++;//avanza jugador
+        jugador2->avance--;//el otro jugador reduce su avance
         initPlayer(jugador2, jugador2->id, jugador2->key);
         initPlayer(jugador1, jugador1->id, jugador1->key);
         jugador1->muerto = FALSE;
@@ -310,7 +317,8 @@ Jugador* jugadorLocal, Jugador* jugadorContrario){
             jugadorContrario->teclado.key.keysym.sym = SDLK_q;
         }
     }
-    saltar(jugadorContrario);
+    if(jugadorContrario->saltar)
+        saltar(jugadorContrario);
 
     if ( jugadorContrario->teclado.key.keysym.sym == SDLK_DOWN ||
          jugadorContrario->teclado.key.keysym.sym == SDLK_SPACE )

@@ -4,6 +4,7 @@
 
 #include <SDL/SDL_image.h>
 #include <SDL/SDL.h>
+#include <SDL_ttf.h>
 
 char routes[ TOTAL_IMAGENES ][ TOTAL_IMAGENES ];
 
@@ -26,6 +27,7 @@ typedef struct{
     boolean key;
     boolean muerto;
     boolean ganador;
+    short avance;
 }Jugador;
 
 typedef struct{
