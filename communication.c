@@ -3,7 +3,7 @@
 bool openCommunication(bool isServer,bool *haveKey)
 {
     //return true;
-    char buffer[BUFFER_LEN];
+    unsigned char buffer[BUFFER_LEN];
     unsigned int res,len;
     fd_socket = socket(AF_INET6,SOCK_DGRAM,0);
     if(fd_socket >= 0){

@@ -17,6 +17,8 @@ int main()
 
     if(openCommunication(isServer,&haveKey))
     {
+        printf("usuario local: %s\n",userNameLocal);
+        printf("usuario contrario: %s\n",userNameContrario);
         init = SDL_Init( SDL_INIT_VIDEO );
         if( init >= 0 )
         {
