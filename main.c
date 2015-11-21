@@ -10,7 +10,10 @@ int main()
     int init, time;
     unsigned int actionContrario,posXContrario,acelContrario;
     struct timeval time_out;
-    bool haveKey,isServer = false;
+    bool haveKey,isServer = true;
+
+    printf("Nombre de usuario (Max %d caracteres): ",MAX_CARACTERES_USER_NAME-1);
+    fgets(userNameLocal,MAX_CARACTERES_USER_NAME,stdin);
 
     if(openCommunication(isServer,&haveKey))
     {
@@ -112,17 +115,6 @@ int main()
                     else if(jugadorLocal->saltar)
                     {
                         saltar(jugadorLocal);
-                    }
-                    if ( jugadorContrario->teclado.key.keysym.sym == SDLK_DOWN || jugadorContrario->teclado.key.keysym.sym == SDLK_SPACE )
-                    {
-                        if( jugadorContrario->adelante )
-                        {
-                            jugadorContrario->imagen = imagenes[player_walk_knife_left1];
-                        }
-                        else
-                        {
-                            jugadorContrario->imagen = imagenes[player_walk_knife_right1];
-                        }
                     }
 
                     if( (time = passTime(time_out)) <= 700 )

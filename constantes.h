@@ -15,3 +15,7 @@
 #define ANCHURA 1314
 #define ALTURA 500
 #define SALTO -25
+#define MAX_CARACTERES_USER_NAME 21
+
+char userNameLocal[MAX_CARACTERES_USER_NAME];
+char userNameContrario[MAX_CARACTERES_USER_NAME];

@@ -16,7 +16,6 @@ typedef enum{
 
 typedef struct{
     unsigned short id;
-    char nombre_usuario[20];
     unsigned short aceleracion;
     unsigned int salto;
     SDL_Rect posicion;

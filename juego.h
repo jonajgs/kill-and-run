@@ -14,6 +14,7 @@ Object llave, antorcha1, antorcha2, muerto;
 struct timeval start;
 bool exitGame;
 
+
 void initPlayer( Jugador*, short, boolean);
 void initObject(Object *, int , int , int );
 void cargar_imagenes( SDL_Surface**, SDL_RWops**);

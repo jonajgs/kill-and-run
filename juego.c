@@ -7,19 +7,14 @@ void initPlayer( Jugador *jugador, short id, boolean key ){
     jugador->saltar = FALSE;
     jugador->salto = SALTO;
     jugador->posicion.y = 330;
+    jugador->key = key;
+    jugador->adelante = TRUE;
     if(id == 1){
         jugador->imagen = imagenes[ player_walk_knife_left1 ];
         jugador->posicion.x = 40;
-        jugador->adelante = TRUE;
     } else {
         jugador->imagen = imagenes[ player_walk_knife_right1 ];
         jugador->posicion.x = ANCHURA -100;
-        jugador->adelante = TRUE;
-    }
-    if(key){
-        jugador->key = TRUE;
-    } else {
-        jugador->key = FALSE;
     }
 }
 
@@ -192,6 +187,7 @@ void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
             escenario_actual = stageFinal;
         } else {
             jugador1->ganador = TRUE;
+            exitGame = true;
         }
         initPlayer(jugador2, jugador2->id, jugador2->key);
         initPlayer(jugador1, jugador1->id, jugador1->key);
@@ -274,7 +270,6 @@ Jugador* jugadorLocal, Jugador* jugadorContrario){
     if(action != 0){
         switch(action){
         case COM_FIN_DE_JUEGO:
-            //mostrar que se terminó el juego
             exitGame = true;
             break;
         case COM_MOVIMIENTO:
@@ -312,8 +307,21 @@ Jugador* jugadorLocal, Jugador* jugadorContrario){
             mover(jugadorContrario,jugadorLocal,jugadorLocal);
         }
         else{
-            jugadorContrario->teclado.key.keysym.sym = SDLK_RIGHT;
+            jugadorContrario->teclado.key.keysym.sym = SDLK_q;
         }
     }
     saltar(jugadorContrario);
+
+    if ( jugadorContrario->teclado.key.keysym.sym == SDLK_DOWN ||
+         jugadorContrario->teclado.key.keysym.sym == SDLK_SPACE )
+    {
+        if( jugadorContrario->adelante )
+        {
+            jugadorContrario->imagen = imagenes[player_walk_knife_left1];
+        }
+        else
+        {
+            jugadorContrario->imagen = imagenes[player_walk_knife_right1];
+        }
+    }
 }
