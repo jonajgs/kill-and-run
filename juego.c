@@ -208,6 +208,7 @@ void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
             } else {//gana cuando pasa el stage final y tiene el avance positivo
                 jugador1->ganador = TRUE;
                 exitGame = true;
+                sendMsg(COM_FIN_DE_JUEGO,jugador1);
             }
         }
         jugador1->avance++;//avanza jugador
@@ -315,21 +316,6 @@ Jugador* jugadorLocal, Jugador* jugadorContrario){
         }
         else{
             jugadorContrario->teclado.key.keysym.sym = SDLK_q;
-        }
-    }
-    if(jugadorContrario->saltar)
-        saltar(jugadorContrario);
-
-    if ( jugadorContrario->teclado.key.keysym.sym == SDLK_DOWN ||
-         jugadorContrario->teclado.key.keysym.sym == SDLK_SPACE )
-    {
-        if( jugadorContrario->adelante )
-        {
-            jugadorContrario->imagen = imagenes[player_walk_knife_left1];
-        }
-        else
-        {
-            jugadorContrario->imagen = imagenes[player_walk_knife_right1];
         }
     }
 }
