@@ -17,7 +17,8 @@ int main()
 
     if(openCommunication(isServer,&haveKey))
     {
-
+        jugador1.avance=0;
+        jugador2.avance=0;
         init = SDL_Init( SDL_INIT_VIDEO );
         if( init >= 0 )
         {

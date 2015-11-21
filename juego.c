@@ -9,7 +9,6 @@ void initPlayer( Jugador *jugador, short id, boolean key ){
     jugador->posicion.y = 330;
     jugador->key = key;
     jugador->adelante = TRUE;
-    jugador->avance = 0;
     if(id == 1){
         jugador->imagen = imagenes[ player_walk_knife_left1 ];
         jugador->posicion.x = 40;
@@ -182,7 +181,7 @@ void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
     ( jugador1->posicion.x >= ANCHURA-20  && jugador1->key == TRUE && jugador1->id == 1) ||
     ( jugador1->posicion.x <= 10          && jugador1->key == TRUE && jugador1->id == 2)
     ) {
-        if(jugador1->avance < 0){
+        if(jugador1->avance < 0){//recupera salas
             if ( escenario_actual == stageFinal ) {
                 escenario_actual = stage5;
             } else if ( escenario_actual == stage5 ) {
@@ -194,7 +193,7 @@ void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
             } else if( escenario_actual == stage2 ) {
                 escenario_actual = stage1;
             }
-        }else{
+        }else{//avanza ganando
             if ( escenario_actual == stage1 ) {
                 escenario_actual = stage2;
             } else if ( escenario_actual == stage2 ) {
@@ -211,12 +210,14 @@ void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
                 sendMsg(COM_FIN_DE_JUEGO,jugador1);
             }
         }
-        jugador1->avance++;//avanza jugador
-        jugador2->avance--;//el otro jugador reduce su avance
+        jugador1->avance = jugador1->avance+1;//avanza jugador
+        jugador2->avance = jugador2->avance-1;//el otro jugador reduce su avance
         initPlayer(jugador2, jugador2->id, jugador2->key);
         initPlayer(jugador1, jugador1->id, jugador1->key);
         jugador1->muerto = FALSE;
         jugador2->muerto = FALSE;
+        printf("Avance jugador1: %d\n",jugador1->avance);
+        printf("Avance jugador2: %d\n",jugador2->avance);
     }
 
     if(jugador1->teclado.key.keysym.sym == SDLK_RIGHT) {
