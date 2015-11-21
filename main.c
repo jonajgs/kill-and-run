@@ -146,6 +146,13 @@ int main()
                     }
 
                 } // endwhile
+                if(jugadorLocal->ganador == TRUE){
+                    printf("FELICIDADES!! GANASTE!");
+                }else if(jugadorContrario->ganador == TRUE){
+                    printf("BUUUUU!! PERDISTE!");
+                }else{
+                    printf("SE PERDIÓ LA CONEXIÓN!!");
+                }
             }
             else
             {
