@@ -216,8 +216,8 @@ void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
         initPlayer(jugador1, jugador1->id, jugador1->key);
         jugador1->muerto = FALSE;
         jugador2->muerto = FALSE;
-        printf("Avance jugador1: %d\n",jugador1->avance);
-        printf("Avance jugador2: %d\n",jugador2->avance);
+//        printf("Avance jugador1: %d\n",jugador1->avance);
+//        printf("Avance jugador2: %d\n",jugador2->avance);
     }
 
     if(jugador1->teclado.key.keysym.sym == SDLK_RIGHT) {

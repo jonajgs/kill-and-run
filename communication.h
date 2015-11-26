@@ -14,8 +14,9 @@
 #include "estructuras.h"
 
 //#define IPV6_ADDR "fe80::16d6:4dff:feab:f491"  //Angel escritorio
-#define IPV6_ADDR "fe80::6aa3:c4ff:fec1:31c6"   //Jonathan lap
+//#define IPV6_ADDR "fe80::ea9a:8fff:fe21:ec74"   //Jonathan lap
 //#define IPV6_ADDR "fe80::8200:bff:fe87:c5df"  //Angel lap
+#define IPV6_ADDR "fe80::9eb7:dff:fe77:4e3c"  //Juan lap
 
 #define PORT 1993
 #define BUFFER_LEN 256
@@ -37,8 +38,8 @@ typedef enum{false,true}bool;
 
 
 int fd_socket;
-struct sockaddr_in6 server_addr,client_addr;
-socklen_t client_len;
+struct sockaddr_in6 addrContrario;
+socklen_t addrLen;
 
 bool openCommunication(bool,bool*);
 void closeCommunication();
