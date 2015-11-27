@@ -9,6 +9,7 @@ void initPlayer( Jugador *jugador, short id, boolean key ){
     jugador->posicion.y = 330;
     jugador->key = key;
     jugador->adelante = TRUE;
+    jugador->ganador = FALSE;
     if(id == 1){
         jugador->imagen = imagenes[ player_walk_knife_left1 ];
         jugador->posicion.x = 40;
@@ -208,6 +209,7 @@ void mover(Jugador *jugador1,Jugador *jugador2,Jugador *jugadorLocal)
                 jugador1->ganador = TRUE;
                 exitGame = true;
                 sendMsg(COM_FIN_DE_JUEGO,jugador1);
+                return;
             }
         }
         jugador1->avance = jugador1->avance+1;//avanza jugador
