@@ -1,0 +1,10 @@
+before_script:
+    - apt-get update -qq && apt-get install -y -qq sudo gcc
+
+stages:
+    - build
+
+build_all:
+    stage: build
+    script:
+        - gcc main.c -LSDL
