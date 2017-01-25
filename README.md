@@ -1,5 +1,9 @@
 # Kill & Run
 
+## requerimientos
+
+- SDL
+
 ## Get started
 
 clone the repository
